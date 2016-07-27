@@ -1,0 +1,16 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="example_switch"
+        android:title="@string/pref_transfer_done_notification" />
+
+
+    <EditTextPreference
+        android:title="@string/pref_target_rate_label"
+        android:key="@string/pref_target_rate_key"
+        android:defaultValue="@string/pref_target_rate_default"
+        android:inputType="text"
+        android:singleLine="true" />
+
+</PreferenceScreen>

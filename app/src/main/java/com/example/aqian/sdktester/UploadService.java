@@ -3,11 +3,14 @@ package com.example.aqian.sdktester;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.asperasoft.mobile.AbstractFaspSession;
 import com.asperasoft.mobile.FaspSession;
@@ -34,6 +37,9 @@ public class UploadService extends IntentService
     @Override
     protected void onHandleIntent (Intent intent)
     {
+        SharedPreferences sharedPrefs =
+                PreferenceManager.getDefaultSharedPreferences(this);
+
         if (intent.getExtras() != null)
         {
             // Get data from intent extras
@@ -43,6 +49,9 @@ public class UploadService extends IntentService
             String destinationPath = intent.getStringExtra(UploadActivity.DESTINATION_PATH_KEY);
             String password = intent.getStringExtra(UploadActivity.PASSWORD_KEY);
             int sshPort = intent.getIntExtra(UploadActivity.SSH_PORT_KEY, 22);
+            int targetRate = Integer.parseInt(sharedPrefs.getString(
+                    getString(R.string.pref_target_rate_key),
+                    getString(R.string.pref_target_rate_default)));
             Uri fileUri = Uri.parse(intent.getStringExtra(UploadActivity.FILE_URI_KEY));
 
             Log.i(TAG, "Intent received with Uri: " + fileUri.toString());
@@ -64,6 +73,7 @@ public class UploadService extends IntentService
                             .withPassword(password)
                             .withSshPort(sshPort)
                             .withDestinationPath(destinationPath)
+                            .withInitialTargetRate(targetRate)
                             .build();
 
                     // Create the FaspSession
@@ -162,6 +172,7 @@ public class UploadService extends IntentService
 
         if (currentSession != null)
             currentSession.stop();
+        Toast.makeText(getApplicationContext(), "Finished Uploading", Toast.LENGTH_LONG).show();
     }
 
     private static FaspSessionListener callbacks = new FaspSessionListener()

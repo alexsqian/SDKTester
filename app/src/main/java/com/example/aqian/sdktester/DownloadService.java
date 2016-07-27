@@ -2,9 +2,12 @@ package com.example.aqian.sdktester;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.asperasoft.mobile.AbstractFaspSession;
 import com.asperasoft.mobile.FaspSession;
@@ -34,17 +37,27 @@ public class DownloadService extends IntentService {
 
 
     protected void onHandleIntent (Intent intent) {
-        if (intent.getExtras() != null) {
-            // Get data from intent extras
 
+        if (intent.getExtras() != null) {
+
+            //Get the initial target rate and other settings
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+            // Get data from intent extras
             String host = intent.getStringExtra(DownloadActivity.HOST_KEY);
             String user = intent.getStringExtra(DownloadActivity.USER_KEY);
             String password = intent.getStringExtra(DownloadActivity.PASSWORD_KEY);
             String fileLocation = intent.getStringExtra(DownloadActivity.FILE_LOCATION_KEY);
             int sshPort = intent.getIntExtra(DownloadActivity.SSH_PORT_KEY, 22);
+            float targetRateSetting = (Float.parseFloat(sharedPrefs.getString(
+                    getString(R.string.pref_target_rate_key),
+                    getString(R.string.pref_target_rate_default))) * 1000000);
+            long targetRate = (long) targetRateSetting;
             destinationPath = pkgDownloads.getAbsolutePath();
             pkgDownloads.mkdirs();
 
+//            Log.i(TAG, "Target rate: " + targetRate);
             Log.i(TAG, "Intent received with file location: " + fileLocation);
 
             /* Checks if external storage is available for read and write */
@@ -56,6 +69,7 @@ public class DownloadService extends IntentService {
                         .withPassword(password)
                         .withSshPort(sshPort)
                         .withDestinationPath(destinationPath)
+                        .withInitialTargetRate(targetRate)
                         .build();
 
                 //Creating the FASP session, fileLocation in this case being /Upload in demo server
@@ -69,6 +83,7 @@ public class DownloadService extends IntentService {
                 // Start the transfer
                 currentSession.start();
 
+                //Assigns the file locaiton to download to
                 File sourceFile = new File(fileLocation);
                 File downloadedFile = new File(pkgDownloads, sourceFile.getName());
                 Log.i(TAG, sourceFile.getAbsolutePath());
@@ -88,14 +103,14 @@ public class DownloadService extends IntentService {
     @Override
     public void onDestroy ()
     {
-
-
         super.onDestroy();
 
         if (currentSession != null)
             currentSession.stop();
+        Toast.makeText(DownloadService.this, "Finished Downloading", Toast.LENGTH_LONG).show();
     }
 
+    //Log messages and useful statistics
     private static FaspSessionListener callbacks = new FaspSessionListener()
     {
         @Override
