@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -21,9 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
-
 public class DownloadActivity extends AppCompatActivity {
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -32,11 +28,9 @@ public class DownloadActivity extends AppCompatActivity {
 
     public final static String HOST_KEY = "host_key";
     public final static String USER_KEY = "user_key";
-    public final static String DESTINATION_PATH_KEY = "destination_path_key";
     public final static String PASSWORD_KEY = "password_key";
     public final static String SSH_PORT_KEY = "ssh_port_key";
     public final static String FILE_LOCATION_KEY = "file_location_key";
-    String destinationPath = "";
 
     private EditText mInputHost;
     private EditText mInputUser;
@@ -55,6 +49,8 @@ public class DownloadActivity extends AppCompatActivity {
         }
     };
 
+    //Text Watchers respond to the input text (main usage is to update the button once everything
+    //is filled out and save the text so the user does not have to retype
     private TextWatcher hostTextWatcher = new TextWatcher()
     {
         @Override
@@ -148,17 +144,18 @@ public class DownloadActivity extends AppCompatActivity {
         mButtonDownload = (Button) findViewById(R.id.button_download);
     }
 
-    //Sets up
+    //Sets up input text to respond dynamically to changes made by the user
     private void setupViews () {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
 
+        //Saves/sets the text so user does not have to retype
         mInputHost.setText(preferences.getString(HOST_KEY, ""));
         mInputUser.setText(preferences.getString(USER_KEY, ""));
         mInputPassword.setText(preferences.getString(PASSWORD_KEY, ""));
         mInputSshPort.setText(preferences.getString(SSH_PORT_KEY, ""));
         mInputFileLocation.setText(preferences.getString(FILE_LOCATION_KEY, ""));
 
-
+        //Registers the user has input text and then sets it up to be saved
         mInputHost.setOnFocusChangeListener(mFocusListener);
         mInputUser.setOnFocusChangeListener(mFocusListener);
         mInputPassword.setOnFocusChangeListener(mFocusListener);
@@ -171,13 +168,6 @@ public class DownloadActivity extends AppCompatActivity {
         mInputSshPort.addTextChangedListener(sshTextWatcher);
         mInputFileLocation.addTextChangedListener(fileTextWatcher);
 
-        File pkgDownloads = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "downloadDirectoryName");
-        try {
-            destinationPath = pkgDownloads.getCanonicalPath();
-        } catch(IOException e) {
-        }
-
         mButtonDownload.setActivated(false);
         mButtonDownload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,7 +176,6 @@ public class DownloadActivity extends AppCompatActivity {
                 Intent intent = new Intent(DownloadActivity.this, DownloadService.class);
                 intent.putExtra(HOST_KEY, mInputHost.getText().toString());
                 intent.putExtra(USER_KEY, mInputUser.getText().toString());
-                intent.putExtra(DESTINATION_PATH_KEY, destinationPath);
                 intent.putExtra(PASSWORD_KEY, mInputPassword.getText().toString());
                 intent.putExtra(FILE_LOCATION_KEY, mInputFileLocation.getText().toString());
                 String sshPortString = mInputSshPort.getText().toString();

@@ -49,74 +49,86 @@ public class UploadActivity extends AppCompatActivity
         }
     };
 
+    //Text Watchers respond to the input text (main usage is to update the button once everything
+    //is filled out and save the text so the user does not have to retype
     private TextWatcher hostTextWatcher = new TextWatcher()
     {
         @Override
         public void beforeTextChanged (CharSequence s, int start, int count, int after)
-        {updateSendButton();}
+        {
+            updateUploadButton();}
 
         @Override
         public void onTextChanged (CharSequence s, int start, int before, int count) {}
 
         @Override
         public void afterTextChanged (Editable s)
-        {saveEditTextValue(mInputHost);updateSendButton();}
+        {saveEditTextValue(mInputHost);
+            updateUploadButton();}
     };
 
     private TextWatcher userTextWatcher = new TextWatcher()
     {
         @Override
         public void beforeTextChanged (CharSequence s, int start, int count, int after)
-        {updateSendButton();}
+        {
+            updateUploadButton();}
 
         @Override
         public void onTextChanged (CharSequence s, int start, int before, int count) {}
 
         @Override
         public void afterTextChanged (Editable s)
-        {saveEditTextValue(mInputUser);updateSendButton();}
+        {saveEditTextValue(mInputUser);
+            updateUploadButton();}
     };
 
     private TextWatcher passwordTextWatcher = new TextWatcher()
     {
         @Override
         public void beforeTextChanged (CharSequence s, int start, int count, int after)
-        {updateSendButton();}
+        {
+            updateUploadButton();}
 
         @Override
         public void onTextChanged (CharSequence s, int start, int before, int count) {}
 
         @Override
         public void afterTextChanged (Editable s)
-        {saveEditTextValue(mInputPassword);updateSendButton();}
+        {saveEditTextValue(mInputPassword);
+            updateUploadButton();}
     };
 
     private TextWatcher sshTextWatcher = new TextWatcher()
     {
         @Override
         public void beforeTextChanged (CharSequence s, int start, int count, int after)
-        {updateSendButton();}
+        {
+            updateUploadButton();}
 
         @Override
         public void onTextChanged (CharSequence s, int start, int before, int count) {}
 
         @Override
         public void afterTextChanged (Editable s)
-        {saveEditTextValue(mInputSshPort);updateSendButton();}
+        {saveEditTextValue(mInputSshPort);
+            updateUploadButton();}
     };
 
     private TextWatcher destinationTextWatcher = new TextWatcher()
     {
         @Override
         public void beforeTextChanged (CharSequence s, int start, int count, int after)
-        {updateSendButton();}
+        {
+            updateUploadButton();}
 
         @Override
         public void onTextChanged (CharSequence s, int start, int before, int count) {}
 
         @Override
         public void afterTextChanged (Editable s)
-        {saveEditTextValue(mInputDestinationPath);updateSendButton();}
+        {saveEditTextValue(mInputDestinationPath);
+            updateUploadButton();}
     };
 
     @Override
@@ -130,6 +142,7 @@ public class UploadActivity extends AppCompatActivity
         setupViews();
     }
 
+    //Basic initializing of the Edit Text
     private void bindViews ()
     {
         mInputHost = (EditText) findViewById(R.id.input_host);
@@ -142,16 +155,19 @@ public class UploadActivity extends AppCompatActivity
         mButtonSend = (Button) findViewById(R.id.button_send);
     }
 
+    //Sets up input text to respond dynamically to changes made by the user
     private void setupViews ()
     {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
 
+        //Saves/sets the text so user does not have to retype
         mInputHost.setText(preferences.getString(HOST_KEY, ""));
         mInputDestinationPath.setText(preferences.getString(DESTINATION_PATH_KEY, ""));
         mInputUser.setText(preferences.getString(USER_KEY, ""));
         mInputPassword.setText(preferences.getString(PASSWORD_KEY, ""));
         mInputSshPort.setText(preferences.getString(SSH_PORT_KEY, ""));
 
+        //Registers the user has input text and then sets it up to be saved
         mInputHost.setOnFocusChangeListener(mFocusListener);
         mInputDestinationPath.setOnFocusChangeListener(mFocusListener);
         mInputUser.setOnFocusChangeListener(mFocusListener);
@@ -164,6 +180,7 @@ public class UploadActivity extends AppCompatActivity
         mInputPassword.addTextChangedListener(passwordTextWatcher);
         mInputSshPort.addTextChangedListener(sshTextWatcher);
 
+        //Choose the file to upload
         mButtonPick.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -198,6 +215,7 @@ public class UploadActivity extends AppCompatActivity
         });
     }
 
+    //Saves the string in the text line for future convenience
     private void saveEditTextValue (EditText editText)
     {
         SharedPreferences.Editor preferencesEditor = getPreferences(Context.MODE_PRIVATE).edit();
@@ -227,7 +245,8 @@ public class UploadActivity extends AppCompatActivity
         preferencesEditor.putString(key, editText.getText().toString()).commit();
     }
 
-    private void updateSendButton ()
+    //Makes the upload button pressable once all fields have been filled out
+    private void updateUploadButton()
     {
         if (!TextUtils.isEmpty(mInputHost.getText().toString()) && !TextUtils.isEmpty(mInputUser.getText().toString()) && !TextUtils.isEmpty(mInputPassword.getText().toString()) && mFileUri != null)
             mButtonSend.setEnabled(true);
@@ -243,6 +262,7 @@ public class UploadActivity extends AppCompatActivity
             mTextFileSelect.setText("No file selected");
     }
 
+    //Checks if a file was actually selected, and if so update the file name and upload button
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data)
     {
@@ -256,7 +276,7 @@ public class UploadActivity extends AppCompatActivity
                 {
                     mFileUri = uri;
                     updateTextSelectedFile();
-                    updateSendButton();
+                    updateUploadButton();
                 }
             }
         }

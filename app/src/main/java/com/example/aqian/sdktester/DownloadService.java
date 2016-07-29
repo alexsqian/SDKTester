@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -15,6 +16,7 @@ import com.asperasoft.mobile.FaspSessionListener;
 import com.asperasoft.mobile.FaspSessionParameters;
 import com.asperasoft.mobile.FaspSessionState;
 import com.asperasoft.mobile.FaspSessionStats;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -83,7 +85,7 @@ public class DownloadService extends IntentService {
                 // Start the transfer
                 currentSession.start();
 
-                //Assigns the file locaiton to download to
+                //Assigns the file location to download to
                 File sourceFile = new File(fileLocation);
                 File downloadedFile = new File(pkgDownloads, sourceFile.getName());
                 Log.i(TAG, sourceFile.getAbsolutePath());
@@ -116,6 +118,7 @@ public class DownloadService extends IntentService {
         @Override
         public void onSessionStart (AbstractFaspSession abstractFaspSession)
         {
+            MainActivity.report(3);
             Log.i(TAG, "Transfer: onSessionStart");
         }
 
@@ -166,6 +169,8 @@ public class DownloadService extends IntentService {
         @Override
         public void onSessionEnd (AbstractFaspSession abstractFaspSession, FaspSessionState finalState)
         {
+            Bundle bundle = new Bundle();
+            bundle.putLong(FirebaseAnalytics.Param.VALUE, abstractFaspSession.getStats().getBytesTransferred());
 
             Log.i(TAG, "Transfer: onSessionEnd: " + finalState);
             if (finalState == FaspSessionState.SUCCEEDED) {
