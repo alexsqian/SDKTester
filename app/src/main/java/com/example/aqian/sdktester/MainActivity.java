@@ -1,44 +1,63 @@
 package com.example.aqian.sdktester;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.firebase.jobdispatcher.Constraint;
+import com.firebase.jobdispatcher.Driver;
+import com.firebase.jobdispatcher.FirebaseJobDispatcher;
+import com.firebase.jobdispatcher.GooglePlayDriver;
+import com.firebase.jobdispatcher.Job;
+import com.firebase.jobdispatcher.Lifetime;
+import com.firebase.jobdispatcher.Trigger;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crash.FirebaseCrash;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseAnalytics mFirebaseAnalytics;
-    private FirebaseRemoteConfig mFirebaseRemoteConfig;
+    private static final String TAG = "MainActivity";
+    public static FirebaseAnalytics mFirebaseAnalytics;
+
+    public static String buttonGone = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final SharedPreferences mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-        //setting up remote config, and putting it into developer's mode to test many different config values
-        FirebaseRemoteConfig mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-                .setDeveloperModeEnabled(BuildConfig.DEBUG)
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        Driver myDriver = new GooglePlayDriver(MainActivity.this);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(myDriver);
+
+        Job job = dispatcher.newJobBuilder()
+                .setService(MyJobService.class)
+                .setTag("my-tag")
+                .setConstraints(
+                        Constraint.ON_ANY_NETWORK)
+                .setTrigger(Trigger.executionWindow(3600, 3600 + 120))
+                .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+                .setRecurring(true)
+                .setReplaceCurrent(true)
                 .build();
-        mFirebaseRemoteConfig.setConfigSettings(configSettings);
-//        mFirebaseRemoteConfig.setDefaults(R.xml.default_parameters);
-        mFirebaseRemoteConfig.fetch(0);
-        mFirebaseRemoteConfig.activateFetched();
 
-        boolean uploadGone = mFirebaseRemoteConfig.getBoolean("upload_button_disabled");
-        boolean downloadGone = mFirebaseRemoteConfig.getBoolean("download_button_disabled");
+        int result = dispatcher.schedule(job);
+        if (result != FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS) {
+        }
 
-        if (uploadGone) {
+        buttonGone = mSharedPreference.getString(getString(R.string.button_disabled), "");
+
+        if (buttonGone.equals("upload")) {
             setContentView(R.layout.activity_main_no_up);
             createDownloadButton();
-        } else if (downloadGone) {
+        } else if (buttonGone.equals("download")) {
             setContentView(R.layout.activity_main_no_down);
             createUploadButton();
         } else {
@@ -46,12 +65,26 @@ public class MainActivity extends AppCompatActivity {
             createDownloadButton();
             createUploadButton();
         }
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                String value = getIntent().getExtras().getString(key);
+                Log.d(TAG, "Key: " + key + " Value: " + value);
+            }
+        }
+
     }
+
+    protected void onStart() {
+        super.onStart();
+
+//        String test_AB = FirebaseRemoteConfig.getInstance().getString("button_disabled");
+//        AppMeasurement.getInstance(getApplicationContext()).setUserProperty("MyExperiment", test_AB);
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -77,13 +110,7 @@ public class MainActivity extends AppCompatActivity {
     //Firebase crash reporting. Fatal crashes will automatically be sent to the console
     //But you can use this to see if there are any user errors ie (when a transfer fails)
     public static void report(int i) {
-        if (i == 1) {
-            FirebaseCrash.report(new Exception("Pressed Menu Button"));
-        } else if (i == 2) {
-            FirebaseCrash.report(new Exception("Pressed Downloads Button"));
-        } else if (i == 3) {
-            FirebaseCrash.report(new Exception("Started a Session"));
-        }
+
     }
 
     public void createUploadButton() {
@@ -106,4 +133,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 }

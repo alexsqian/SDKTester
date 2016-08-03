@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <defaultsMap>
     <entry>
-        <key>download_button_disabled</key>
-        <value>false</value>
+        <key>button_disabled</key>
+        <value>"null"</value>
     </entry>
 
-    <entry>
-        <key>upload_button_disabled</key>
-        <value>false</value>
-    </entry>
 
 </defaultsMap>

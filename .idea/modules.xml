@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SDKTester2.iml" filepath="$PROJECT_DIR$/SDKTester2.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jobdispatcher-release/jobdispatcher-release.iml" filepath="$PROJECT_DIR$/jobdispatcher-release/jobdispatcher-release.iml" />
     </modules>
   </component>
 </project>
