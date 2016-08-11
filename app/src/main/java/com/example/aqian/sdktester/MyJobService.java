@@ -46,12 +46,9 @@ public class MyJobService extends JobService {
                             // values are returned.
                             mFirebaseRemoteConfig.activateFetched();
                             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//                                    getApplicationContext()
-//                                    .getSharedPreferences(getString(R.string.com_example_aqian_PREFERENCE_FILE_KEY), Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putString(getString(R.string.button_disabled), mFirebaseRemoteConfig.getString("button_disabled"));
-
-                            editor.commit();
+                            editor.apply();
                         }
                     }
                 });

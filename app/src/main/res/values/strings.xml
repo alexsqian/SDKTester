@@ -9,6 +9,7 @@
 
     <!-- Strings related to SharedPreferences -->
     <string name="com.example.aqian.PREFERENCE_FILE_KEY">Shared Preferences</string>
+    <string name="notificationID">Notification ID</string>
 
     <!-- Remote Config Strings -->
     <string name="button_disabled">button disabled</string>

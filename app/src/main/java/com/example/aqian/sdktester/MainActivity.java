@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +19,7 @@ import com.firebase.jobdispatcher.Job;
 import com.firebase.jobdispatcher.Lifetime;
 import com.firebase.jobdispatcher.Trigger;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -31,9 +31,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final SharedPreferences mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
         Driver myDriver = new GooglePlayDriver(MainActivity.this);
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(myDriver);
 
@@ -67,14 +65,6 @@ public class MainActivity extends AppCompatActivity {
         }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        if (getIntent().getExtras() != null) {
-            for (String key : getIntent().getExtras().keySet()) {
-                String value = getIntent().getExtras().getString(key);
-                Log.d(TAG, "Key: " + key + " Value: " + value);
-            }
-        }
-
     }
 
     protected void onStart() {
@@ -97,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        report(1);
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -118,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FirebaseMessaging.getInstance().unsubscribeFromTopic("news");
                 startActivity(new Intent(MainActivity.this, UploadActivity.class));
             }
         });
@@ -128,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
         download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FirebaseMessaging.getInstance().subscribeToTopic("news");
                 startActivity(new Intent(MainActivity.this, DownloadActivity.class));
-                report(2);
             }
         });
     }

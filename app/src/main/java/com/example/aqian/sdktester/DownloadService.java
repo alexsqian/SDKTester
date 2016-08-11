@@ -16,7 +16,6 @@ import com.asperasoft.mobile.FaspSessionListener;
 import com.asperasoft.mobile.FaspSessionParameters;
 import com.asperasoft.mobile.FaspSessionState;
 import com.asperasoft.mobile.FaspSessionStats;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -118,7 +117,6 @@ public class DownloadService extends IntentService {
         @Override
         public void onSessionStart (AbstractFaspSession abstractFaspSession)
         {
-            MainActivity.report(3);
             Log.i(TAG, "Transfer: onSessionStart");
         }
 
@@ -170,7 +168,7 @@ public class DownloadService extends IntentService {
         public void onSessionEnd (AbstractFaspSession abstractFaspSession, FaspSessionState finalState)
         {
             Bundle bundle = new Bundle();
-            bundle.putLong(FirebaseAnalytics.Param.VALUE, abstractFaspSession.getStats().getBytesTransferred());
+//            bundle.putLong(FirebaseAnalytics.Param.VALUE, abstractFaspSession.getStats().getBytesTransferred());
 
             Log.i(TAG, "Transfer: onSessionEnd: " + finalState);
             if (finalState == FaspSessionState.SUCCEEDED) {
