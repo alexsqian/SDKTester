@@ -8,8 +8,6 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -28,18 +26,22 @@ public class MyBroadcastReciever extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String messageID = "messageID=" + intent.getStringExtra("uniqueMessageID");
-        Log.e(TAG, intent.getAction());
+
+        //Check the action and perform it accordingly
         if (intent.getAction().equals("date")) {
             Intent i = new Intent(context.getApplicationContext(), PressedNotification.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
-//            retrieveSomethingFromServer();
-        } else if (intent.getAction().equals("log")) {
+        }
+        else if (intent.getAction().equals("log")) {
             Log.e(TAG, messageID);
         }
+
         sendCancelNotificationToServer(messageID);
     }
 
+    //Sends the fcm_push_id to be cancelled to a php script on a local server
+    //Script then sends a data message via FCM with the action "cancel"
     private void sendCancelNotificationToServer(final String messageID) {
         asyncTask = new AsyncTask<Object, Object, Object>() {
             protected Object doInBackground(Object... objects) {
@@ -84,26 +86,5 @@ public class MyBroadcastReciever extends BroadcastReceiver {
             }
         };
         asyncTask.execute();
-    }
-
-    public static String convertinputStreamToString(InputStream ists)
-            throws IOException {
-        if (ists != null) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-
-            try {
-                BufferedReader r1 = new BufferedReader(new InputStreamReader(
-                        ists, "UTF-8"));
-                while ((line = r1.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-            } finally {
-                ists.close();
-            }
-            return sb.toString();
-        } else {
-            return "";
-        }
     }
 }

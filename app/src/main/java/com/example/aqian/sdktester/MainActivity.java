@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings.Secure;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,15 +23,17 @@ import com.firebase.jobdispatcher.Trigger;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     public static FirebaseAnalytics mFirebaseAnalytics;
-
     public static String buttonGone = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         final SharedPreferences mSharedPreference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         Driver myDriver = new GooglePlayDriver(MainActivity.this);
@@ -40,15 +44,13 @@ public class MainActivity extends AppCompatActivity {
                 .setTag("my-tag")
                 .setConstraints(
                         Constraint.ON_ANY_NETWORK)
-                .setTrigger(Trigger.executionWindow(3600, 3600 + 120))
+                .setTrigger(Trigger.executionWindow(3600, 3600 + 220))
                 .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
                 .setRecurring(true)
                 .setReplaceCurrent(true)
                 .build();
 
         int result = dispatcher.schedule(job);
-        if (result != FirebaseJobDispatcher.SCHEDULE_RESULT_SUCCESS) {
-        }
 
         buttonGone = mSharedPreference.getString(getString(R.string.button_disabled), "");
 
@@ -63,12 +65,16 @@ public class MainActivity extends AppCompatActivity {
             createDownloadButton();
             createUploadButton();
         }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
     }
 
     protected void onStart() {
         super.onStart();
+        String android_id = Secure.getString(getApplicationContext().getContentResolver(),
+                Secure.ANDROID_ID);
+        Log.e(TAG, android_id);
 
 //        String test_AB = FirebaseRemoteConfig.getInstance().getString("button_disabled");
 //        AppMeasurement.getInstance(getApplicationContext()).setUserProperty("MyExperiment", test_AB);

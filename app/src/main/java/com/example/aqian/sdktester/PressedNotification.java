@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -15,12 +16,14 @@ import java.net.URLConnection;
 public class PressedNotification extends AppCompatActivity {
     private AsyncTask asyncTask;
     private String date = "";
+    private TextView textview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        retrieveSomethingFromServer();
         setContentView(R.layout.activity_pressed_notification);
+        textview = (TextView) findViewById(R.id.textView);
+        retrieveSomethingFromServer();
     }
 
     @Override
@@ -58,7 +61,7 @@ public class PressedNotification extends AppCompatActivity {
             protected void onPostExecute(Object o) {
                 super.onPostExecute(o);
                 date = (String) o;
-
+                textview.setText(date);
             }
         };
         asyncTask.execute();

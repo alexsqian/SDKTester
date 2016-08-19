@@ -19,10 +19,6 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
     private static final String TAG = "MyFirebaseIIDService";
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
 
     @Override
     public void onTokenRefresh() {
@@ -67,7 +63,6 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         if (wr != null) {
             wr.close();
         }
-
 
         //Get Response
         InputStream is = null;
